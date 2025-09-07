@@ -1,0 +1,26 @@
+# A listing of members for the rotation.
+#
+# `./extend_rotation.py` can be used to extend the rotation.yaml
+#
+# TODO: There's no entry here for `Artur Pilipenko` or `Nikhil Gupta`, as they
+# have no associated github user in the docs.
+members:
+  - ahmedbougacha
+  - mrragava
+  - DimitryAndric
+  - emaste
+  - gburgessiv
+  - cuviper
+  - kbeyls
+  - mmdriley
+  - ormris
+  - ojhunt
+  - smithp35
+  - pietroalbini
+  - serge-sans-paille
+  - offsake
+  - GreatKeeper
+  - tpenge
+  - tuliom
+  - wphuhn-intel
+  - yroux
