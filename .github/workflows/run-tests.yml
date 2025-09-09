@@ -1,0 +1,46 @@
+name: Run Tests
+
+on:
+  pull_request:
+    paths:
+      - '**/*.py'
+      - '**/*.yaml'
+      - '.github/**'
+
+jobs:
+  run_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up repo environment
+        uses: ./.github/actions/setup-repo-env
+
+      - name: Run email script tests
+        run: python3 email_about_issues_test.py
+        working-directory: ./email-rotation
+
+      - name: Run rotation extension tests
+        run: python3 extend_rotation_test.py
+        working-directory: ./email-rotation
+
+      - name: Run yaml verification test
+        run: python3 verify_yaml_files_test.py
+        working-directory: ./email-rotation
+
+      - name: Run pyright
+        run: pyright *.py
+        working-directory: ./email-rotation
+
+      - name: Run mypy
+        run: mypy . --explicit-package-bases --strict
+        working-directory: ./email-rotation
+
+      - name: Run isort
+        run: isort . --check-only
+        working-directory: ./email-rotation
+
+      - name: Run black
+        run: black . --check
+        working-directory: ./email-rotation

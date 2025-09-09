@@ -1,0 +1,8 @@
+black==24.4.2
+isort==5.13.2
+mypy==1.10.0
+types-requests==2.32.0.20240622
+types-PyYAML==6.0.12.20250516
+pyright==1.1.369
+PyYAML==6.0
+requests==2.32.3
