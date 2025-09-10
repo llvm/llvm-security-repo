@@ -6,6 +6,7 @@ from unittest.mock import patch
 
 from extend_rotation import (
     MIN_TIME_UTC,
+    calculate_rotations_to_cover,
     find_most_recent_service_times,
     generate_additional_rotations,
 )
@@ -61,6 +62,67 @@ class TestFindMostRecentServiceTimes(unittest.TestCase):
             "charlie": time2,
         }
         self.assertEqual(result, expected)
+
+
+class TestCalculateRotationsToCover(unittest.TestCase):
+    def test_no_existing_rotations_raises_error(self) -> None:
+        when = datetime.datetime(2025, 6, 1, tzinfo=datetime.timezone.utc)
+        with self.assertRaises(ValueError):
+            calculate_rotations_to_cover(
+                when, rotation_length_weeks=2, current_rotations=[]
+            )
+
+    def test_target_time_before_last_rotation_end_returns_zero(self) -> None:
+        last_rotation_start = datetime.datetime(
+            2025, 5, 1, tzinfo=datetime.timezone.utc
+        )
+        first_rotation_start = last_rotation_start - datetime.timedelta(weeks=2)
+        current_rotations = [
+            Rotation(start_time=first_rotation_start, members=["bob", "charlie"]),
+            Rotation(start_time=last_rotation_start, members=["alice", "bob"]),
+        ]
+
+        # Target time is May 10th, which is before the rotation ends on the
+        # 15th.
+        when = datetime.datetime(2025, 5, 10, tzinfo=datetime.timezone.utc)
+        result = calculate_rotations_to_cover(
+            when, rotation_length_weeks=2, current_rotations=current_rotations
+        )
+        self.assertEqual(result, 0)
+
+    def test_one_rotation_needed(self) -> None:
+        # Last rotation starts May 1st, with 2-week length it ends May 15th
+        last_rotation_start = datetime.datetime(
+            2025, 5, 1, tzinfo=datetime.timezone.utc
+        )
+        current_rotations = [
+            Rotation(start_time=last_rotation_start, members=["alice", "bob"])
+        ]
+
+        # Target time is May 20th, needs one more 2-week rotation, since the
+        # previous one ends on the 15th.
+        when = datetime.datetime(2025, 5, 20, tzinfo=datetime.timezone.utc)
+        result = calculate_rotations_to_cover(
+            when, rotation_length_weeks=2, current_rotations=current_rotations
+        )
+        self.assertEqual(result, 1)
+
+    def test_multiple_rotations_needed(self) -> None:
+        last_rotation_start = datetime.datetime(
+            2025, 5, 1, tzinfo=datetime.timezone.utc
+        )
+        current_rotations = [
+            Rotation(start_time=last_rotation_start, members=["alice", "bob"])
+        ]
+
+        # Target time is June 10th, needs multiple rotations. May 15 to June 10
+        # is about 26 days, which is about 3.7 weeks. With 2-week rotations, we
+        # need 2 rotations (4 weeks total).
+        when = datetime.datetime(2025, 6, 10, tzinfo=datetime.timezone.utc)
+        result = calculate_rotations_to_cover(
+            when, rotation_length_weeks=2, current_rotations=current_rotations
+        )
+        self.assertEqual(result, 2)
 
 
 class TestGenerateAdditionalRotations(unittest.TestCase):
