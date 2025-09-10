@@ -96,8 +96,8 @@ def calculate_rotations_to_cover(
         return 0
 
     delta = when - end_of_last_rotation
-    # Add one because there's almost certainly a non-day component to `delta`.
-    days_needed = delta.days + 1
+    # Use total seconds to account for any non-day components of `delta`.
+    days_needed = math.ceil(delta.total_seconds() / (24 * 60 * 60))
     weeks_needed = days_needed / 7
     rotations_needed = int(math.ceil(weeks_needed / rotation_length_weeks))
     return rotations_needed
