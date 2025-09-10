@@ -4,7 +4,7 @@ import dataclasses
 import datetime
 import logging
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 import yaml
 
@@ -16,10 +16,10 @@ ROTATION_MEMBERS_FILE = Path(__file__).resolve().parent / "rotation-members.yaml
 class RotationMembersFile:
     """Represents the contents of the rotation-members.yaml file."""
 
-    members: List[str]
+    members: list[str]
 
     @classmethod
-    def from_yaml(cls, data: Dict[str, Any]) -> "RotationMembersFile":
+    def from_yaml(cls, data: dict[str, Any]) -> "RotationMembersFile":
         """Create an instance from a YAML dictionary."""
         return cls(members=data.get("members", []))
 
@@ -46,15 +46,15 @@ class Rotation:
     """Represents a single rotation entry."""
 
     start_time: datetime.datetime
-    members: List[str]
+    members: list[str]
 
     @classmethod
-    def from_yaml(cls, data: Dict[str, Any]) -> "Rotation":
+    def from_yaml(cls, data: dict[str, Any]) -> "Rotation":
         """Create an instance from a YAML dictionary."""
         start_time = datetime.datetime.fromisoformat(data["start_time"])
         return cls(start_time=start_time, members=data.get("members", []))
 
-    def to_yaml(self) -> Dict[str, Any]:
+    def to_yaml(self) -> dict[str, Any]:
         """Convert the instance to a YAML-compatible dictionary."""
         as_dict = dataclasses.asdict(self)
         as_dict["start_time"] = self.start_time.isoformat()
@@ -75,10 +75,10 @@ ROTATION_FILE_TOP_COMMENT = """\
 class RotationFile:
     """Represents the contents of the rotation.yaml file."""
 
-    rotations: List[Rotation]
+    rotations: list[Rotation]
 
     @classmethod
-    def from_yaml(cls, data: Dict[str, Any]) -> "RotationFile":
+    def from_yaml(cls, data: dict[str, Any]) -> "RotationFile":
         """Create an instance from a YAML dictionary."""
         # Subtle: sort this, so `rotations` is always in order from
         # oldest -> newest.
