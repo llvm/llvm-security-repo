@@ -4,7 +4,9 @@ import argparse
 import collections
 import dataclasses
 import datetime
+import itertools
 import logging
+import math
 from pathlib import Path
 from typing import Iterator
 
@@ -77,6 +79,30 @@ def generate_additional_rotations(
         least_recent_assignees.extend(people_on_this_rotation)
 
 
+def calculate_rotations_to_cover(
+    when: datetime.datetime,
+    rotation_length_weeks: int,
+    current_rotations: list[rotations.Rotation],
+) -> int:
+    """Calculates how many additional rotations are needed to cover up to `when`."""
+    if not current_rotations:
+        raise ValueError("No existing rotations to extend from.")
+
+    last_rotation = current_rotations[-1]
+    rotation_length = datetime.timedelta(weeks=rotation_length_weeks)
+    end_of_last_rotation = last_rotation.start_time + rotation_length
+
+    if end_of_last_rotation >= when:
+        return 0
+
+    delta = when - end_of_last_rotation
+    # Add one because there's almost certainly a non-day component to `delta`.
+    days_needed = delta.days + 1
+    weeks_needed = days_needed / 7
+    rotations_needed = int(math.ceil(weeks_needed / rotation_length_weeks))
+    return rotations_needed
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Extend a rotation with additional members."
@@ -108,12 +134,6 @@ def parse_args() -> argparse.Namespace:
         """,
     )
     parser.add_argument(
-        "--num-rotations",
-        type=int,
-        default=5,
-        help="Number of rotations to add. Default is %(default)d.",
-    )
-    parser.add_argument(
         "--people-per-rotation",
         type=int,
         default=2,
@@ -123,6 +143,21 @@ def parse_args() -> argparse.Namespace:
         "--debug",
         action="store_true",
         help="Enable debug logging.",
+    )
+
+    rotation_group = parser.add_mutually_exclusive_group()
+    rotation_group.add_argument(
+        "--num-rotations",
+        type=int,
+        help="Number of rotations to add, defaults to 5.",
+    )
+    rotation_group.add_argument(
+        "--ensure-weeks",
+        type=int,
+        help="""
+        Ensure the rotation schedule covers at least this many weeks into
+        the future.
+        """,
     )
     return parser.parse_args()
 
@@ -136,24 +171,50 @@ def main() -> None:
     )
 
     dry_run: bool = opts.dry_run
-    num_rotations: int = opts.num_rotations
     people_per_rotation: int = opts.people_per_rotation
     rotation_file_path: Path = opts.rotation_file
     rotation_length_weeks: int = opts.rotation_length_weeks
     rotation_members_file_path: Path = opts.rotation_members_file
 
+    now = datetime.datetime.now(tz=datetime.timezone.utc)
     members_file = rotations.RotationMembersFile.parse_file(rotation_members_file_path)
     current_rotation = rotations.RotationFile.parse_file(rotation_file_path)
+
+    # Determine number of rotations based on flags
+    if opts.num_rotations is not None:
+        num_rotations_to_add: int = opts.num_rotations
+    elif opts.ensure_weeks is not None:
+        ensure_weeks: int = opts.ensure_weeks
+        num_rotations_to_add = calculate_rotations_to_cover(
+            now + datetime.timedelta(weeks=ensure_weeks),
+            rotation_length_weeks,
+            current_rotation.rotations,
+        )
+        if num_rotations_to_add == 0:
+            logging.info(
+                "Current rotations already cover the next %d weeks; no new rotations needed.",
+                ensure_weeks,
+            )
+            return
+        logging.info(
+            "Ensuring %d weeks of coverage with %d rotations (%d weeks per rotation)",
+            ensure_weeks,
+            num_rotations_to_add,
+            rotation_length_weeks,
+        )
+    else:
+        # Default to 5 rotations if neither flag is specified
+        num_rotations_to_add = 5
 
     rotation_generator = generate_additional_rotations(
         current_rotation.rotations,
         members_file.members,
         people_per_rotation,
         rotation_length_weeks,
-        now=datetime.datetime.now(tz=datetime.timezone.utc),
+        now=now,
     )
 
-    extra_rotations = [x for x, _ in zip(rotation_generator, range(num_rotations))]
+    extra_rotations = list(itertools.islice(rotation_generator, num_rotations_to_add))
     new_rotations = current_rotation.rotations + extra_rotations
     new_rotations_file = dataclasses.replace(current_rotation, rotations=new_rotations)
 
