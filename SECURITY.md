@@ -1,6 +1,6 @@
 # Security issues
 
-This repository is used to report security issues with LLVM.
+This repository is for reporting security issues with LLVM.
 
 Please see
 [LLVM's `SECURITY.md` here](https://github.com/llvm/llvm-project/blob/main/SECURITY.md)
