@@ -74,3 +74,15 @@ rotations:
   - offsake
   - GreatKeeper
   start_time: '2026-04-12T00:00:00+00:00'
+- members:
+  - tpenge
+  - tuliom
+  start_time: '2026-04-26T00:00:00+00:00'
+- members:
+  - wphuhn-intel
+  - ahmedbougacha
+  start_time: '2026-05-10T00:00:00+00:00'
+- members:
+  - yroux
+  - mrragava
+  start_time: '2026-05-24T00:00:00+00:00'
