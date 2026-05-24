@@ -29,5 +29,5 @@ These are not machine parsed; feel free to add commentary beyond yes|no if you
 feel it's appropriate. Please keep the names consistent though - they're meant
 to be easy to ctrl+f for.
 
-**If your report lacks these**, we are likely to ask you to add them before we
-read your report.
+**If your report lacks these**, we will ask you to add them before we read your
+report.
