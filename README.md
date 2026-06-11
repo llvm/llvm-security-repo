@@ -13,9 +13,10 @@ Please follow these guidelines when submitting a report:
 
   - `I-have-reviewed-SECURITY-md`: This is a self-certification that you have
     read and understood [LLVM's `SECURITY.md`](https://github.com/llvm/llvm-project/blob/main/SECURITY.md)
-    and the [LLVM security documentation](https://llvm.org/docs/Security.html).
-    Many LLVM binaries do **not** consider most bugs, including crashes, memory
-    corruption, etc, to be security vulnerabilities.
+    and the [LLVM security documentation on what is a security
+    issue](https://llvm.org/docs/Security.html#what-is-considered-a-security-issue).
+    Notably, many LLVM binaries do **not** consider most bugs, including
+    crashes, memory corruption, etc, to be security vulnerabilities.
   - `I-used-AI-in-this-report`: This is a self-certification about whether AI
     or tool-generated content was a significant contributor to your report. If
     this is `yes`, you **must** read and comply with the [LLVM AI Tool Use
