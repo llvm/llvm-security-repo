@@ -92,7 +92,7 @@ rotations:
   start_time: '2026-06-07T00:00:00+00:00'
 - members:
   - gburgessiv
-  - cuviper
+  - tuliom
   start_time: '2026-06-21T00:00:00+00:00'
 - members:
   - kbeyls
@@ -114,7 +114,3 @@ rotations:
   - GreatKeeper
   - tpenge
   start_time: '2026-08-30T00:00:00+00:00'
-- members:
-  - tuliom
-  - ahmedbougacha
-  start_time: '2026-09-13T00:00:00+00:00'
