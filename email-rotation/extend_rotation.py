@@ -27,13 +27,16 @@ def find_most_recent_service_times(
         service_time = rotation.start_time
         for member in rotation.members:
             # `rotations` is always in the order of oldest to newest, so we can
-            # just overwrite old values here.
-            last_service_times[member] = service_time
+            # just overwrite old values here. Only record service times for
+            # members currently in the rotation.
+            if member in last_service_times:
+                last_service_times[member] = service_time
 
     return last_service_times
 
 
 def generate_additional_rotations(
+    *,
     prior_rotations: list[rotations.Rotation],
     members: list[str],
     rotation_length_weeks: int,
@@ -207,10 +210,10 @@ def main() -> None:
         num_rotations_to_add = 5
 
     rotation_generator = generate_additional_rotations(
-        current_rotation.rotations,
-        members_file.members,
-        people_per_rotation,
-        rotation_length_weeks,
+        prior_rotations=current_rotation.rotations,
+        members=members_file.members,
+        rotation_length_weeks=rotation_length_weeks,
+        people_per_rotation=people_per_rotation,
         now=now,
     )
 
