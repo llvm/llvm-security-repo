@@ -63,6 +63,21 @@ class TestFindMostRecentServiceTimes(unittest.TestCase):
         }
         self.assertEqual(result, expected)
 
+    def test_removed_members_ignored(self) -> None:
+        members = ["alice", "bob"]
+        time1 = datetime.datetime(2023, 1, 1, tzinfo=datetime.timezone.utc)
+        time2 = datetime.datetime(2023, 1, 15, tzinfo=datetime.timezone.utc)
+        prior_rotations = [
+            Rotation(start_time=time1, members=["alice", "bob"]),
+            Rotation(start_time=time2, members=["charlie", "alice"]),
+        ]
+        result = find_most_recent_service_times(prior_rotations, members)
+        expected = {
+            "alice": time2,
+            "bob": time1,
+        }
+        self.assertEqual(result, expected)
+
 
 class TestCalculateRotationsToCover(unittest.TestCase):
     def test_no_existing_rotations_raises_error(self) -> None:
@@ -133,7 +148,11 @@ class TestGenerateAdditionalRotations(unittest.TestCase):
 
         # The function returns an Iterator[Rotation]
         generator = generate_additional_rotations(
-            [], members, rotation_length_weeks, people_per_rotation, now=MOCKED_NOW_UTC
+            prior_rotations=[],
+            members=members,
+            rotation_length_weeks=rotation_length_weeks,
+            people_per_rotation=people_per_rotation,
+            now=MOCKED_NOW_UTC,
         )
         generated_list = [next(generator) for _ in range(2)]
 
@@ -158,10 +177,10 @@ class TestGenerateAdditionalRotations(unittest.TestCase):
         people_per_rotation = 1
 
         generator = generate_additional_rotations(
-            prior_rotations,
-            members,
-            rotation_length_weeks,
-            people_per_rotation,
+            prior_rotations=prior_rotations,
+            members=members,
+            rotation_length_weeks=rotation_length_weeks,
+            people_per_rotation=people_per_rotation,
             now=MOCKED_NOW_UTC,
         )
         generated_list = [next(generator) for _ in range(3)]
