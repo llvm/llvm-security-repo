@@ -114,3 +114,23 @@ rotations:
   - GreatKeeper
   - tpenge
   start_time: '2026-08-30T00:00:00+00:00'
+- members:
+  - ahmedbougacha
+  - wphuhn-intel
+  start_time: '2026-09-13T00:00:00+00:00'
+- members:
+  - mrragava
+  - yroux
+  start_time: '2026-09-27T00:00:00+00:00'
+- members:
+  - DimitryAndric
+  - emaste
+  start_time: '2026-10-11T00:00:00+00:00'
+- members:
+  - gburgessiv
+  - tuliom
+  start_time: '2026-10-25T00:00:00+00:00'
+- members:
+  - kbeyls
+  - mmdriley
+  start_time: '2026-11-08T00:00:00+00:00'
