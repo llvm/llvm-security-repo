@@ -134,6 +134,34 @@ class TestEmailAboutIssues(unittest.TestCase):
         reconstructed = email.ScriptState.from_json(as_json)
         self.assertEqual(original, reconstructed)
 
+    @mock.patch.object(email, "fetch_all_security_advisories_of_type")
+    def test_list_unpublished_security_advisories_handles_none_collaborators(
+        self, mock_fetch: mock.Mock
+    ) -> None:
+        mock_fetch.side_effect = [
+            [
+                {
+                    "ghsa_id": "GHSA-1111-2222-3333",
+                    "summary": "Advisory",
+                    "state": "draft",
+                    "collaborating_users": None,
+                },
+            ],
+            [],
+        ]
+
+        advisories = email.list_unpublished_security_advisories("repo", "token")
+        self.assertEqual(
+            advisories,
+            [
+                email.SecurityAdvisory(
+                    id="GHSA-1111-2222-3333",
+                    title="Advisory",
+                    collaborators=[],
+                ),
+            ],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -170,7 +170,7 @@ def list_unpublished_security_advisories(
         # 'fetch_all_security_advisories_of_type' function.
         assert state in ("draft", "triage"), state
 
-        collaborators = [x["login"] for x in advisory.get("collaborating_users", ())]
+        collaborators = [x["login"] for x in advisory.get("collaborating_users") or ()]
         results.append(
             SecurityAdvisory(
                 id=advisory["ghsa_id"],
